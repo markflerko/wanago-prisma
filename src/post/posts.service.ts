@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { User } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 import { CreatePostDto } from 'src/post/dto/createPost.dto';
 import { UpdatePostDto } from 'src/post/dto/updatePost.dto';
@@ -50,9 +51,27 @@ export class PostsService {
     }
   }
 
-  async createPost(post: CreatePostDto) {
+  async createPost(post: CreatePostDto, user: User) {
+    const categories = post.categoryIds?.map((category) => ({
+      id: category,
+    }));
+
     return this.prismaService.post.create({
-      data: post,
+      data: {
+        title: post.title,
+        content: post.content,
+        author: {
+          connect: {
+            id: user.id,
+          },
+        },
+        categories: {
+          connect: categories,
+        },
+      },
+      include: {
+        categories: true,
+      },
     });
   }
 

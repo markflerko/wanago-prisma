@@ -42,6 +42,9 @@ export class UserService {
           create: address,
         },
       },
+      include: {
+        address: true,
+      },
     });
   }
 }
