@@ -1,20 +1,20 @@
 import {
   Body,
+  ClassSerializerInterceptor,
   Controller,
   Delete,
   Get,
   Param,
   Patch,
+  Post,
   UseGuards,
   UseInterceptors,
-  ClassSerializerInterceptor,
-  Post,
 } from '@nestjs/common';
+import JwtAuthenticationGuard from '../authentication/jwt-authentication.guard';
+import { FindOneParams } from '../utils/findOneParams';
 import CategoriesService from './categories.service';
 import CreateCategoryDto from './dto/createCategory.dto';
 import UpdateCategoryDto from './dto/updateCategory.dto';
-import JwtAuthenticationGuard from '../authentication/jwt-authentication.guard';
-import { FindOneParams } from '../utils/findOneParams';
 
 @Controller('categories')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -47,6 +47,6 @@ export default class CategoriesController {
 
   @Delete(':id')
   async deleteCategory(@Param() { id }: FindOneParams) {
-    return this.categoriesService.deleteCategory(id);
+    return this.categoriesService.deleteCategoryWithPosts(id);
   }
 }

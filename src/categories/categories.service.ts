@@ -1,14 +1,37 @@
 import { Injectable } from '@nestjs/common';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
+import { PostsService } from 'src/post/posts.service';
+import { PrismaService } from '../prisma/prisma.service';
+import { PrismaError } from '../utils/prismaError';
 import CreateCategoryDto from './dto/createCategory.dto';
 import UpdateCategoryDto from './dto/updateCategory.dto';
 import CategoryNotFoundException from './exceptions/categoryNotFound.exception';
-import { PrismaService } from '../prisma/prisma.service';
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
-import { PrismaError } from '../utils/prismaError';
 
 @Injectable()
 export default class CategoriesService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly postsService: PostsService,
+  ) {}
+
+  async deleteCategoryWithPosts(id: number) {
+    const category = await this.getCategoryById(id);
+
+    const postIds = category.posts.map((post) => post.id);
+
+    return this.prismaService.$transaction([
+      this.postsService.deleteMultiplePosts(postIds),
+      this.deleteCategoryById(id),
+    ]);
+  }
+
+  deleteCategoryById(id: number) {
+    return this.prismaService.category.delete({
+      where: {
+        id,
+      },
+    });
+  }
 
   getAllCategories() {
     return this.prismaService.category.findMany();
@@ -18,6 +41,9 @@ export default class CategoriesService {
     const category = await this.prismaService.category.findUnique({
       where: {
         id,
+      },
+      include: {
+        posts: true,
       },
     });
     if (!category) {

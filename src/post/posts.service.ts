@@ -11,6 +11,16 @@ import { PrismaService } from '../prisma/prisma.service';
 export class PostsService {
   constructor(private readonly prismaService: PrismaService) {}
 
+  deleteMultiplePosts(ids: number[]) {
+    return this.prismaService.post.deleteMany({
+      where: {
+        id: {
+          in: ids,
+        },
+      },
+    });
+  }
+
   async deletePost(id: number) {
     try {
       return this.prismaService.post.delete({
