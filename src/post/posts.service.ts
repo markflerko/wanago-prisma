@@ -11,6 +11,14 @@ import { PrismaService } from '../prisma/prisma.service';
 export class PostsService {
   constructor(private readonly prismaService: PrismaService) {}
 
+  getPostsByAuthor(authorId: number) {
+    return this.prismaService.post.findMany({
+      where: {
+        authorId,
+      },
+    });
+  }
+
   deleteMultiplePosts(ids: number[]) {
     return this.prismaService.post.deleteMany({
       where: {
