@@ -1,26 +1,30 @@
-import { BadRequestException, HttpException, HttpStatus } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
+import { ConfigModule } from '@nestjs/config';
 import { Test } from '@nestjs/testing';
 import { User } from '@prisma/client';
+import { BadRequestException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
-import { UserNotFoundException } from 'src/user/user-not-found.exception';
+import { AuthenticationService } from 'src/authentication/authentication.service';
 import { UserService } from 'src/user/user.service';
-import { AuthenticationService } from '../../authentication/authentication.service';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 describe('The AuthenticationService', () => {
   let authenticationService: AuthenticationService;
   let password: string;
-  let getByEmailMock: jest.Mock;
+  let findUniqueMock: jest.Mock;
   beforeEach(async () => {
-    getByEmailMock = jest.fn();
+    password = 'strongPassword123';
+    findUniqueMock = jest.fn();
     const module = await Test.createTestingModule({
       providers: [
         AuthenticationService,
+        UserService,
         {
-          provide: UserService,
+          provide: PrismaService,
           useValue: {
-            getByEmail: getByEmailMock,
+            user: {
+              findUnique: findUniqueMock,
+            },
           },
         },
       ],
@@ -34,49 +38,51 @@ describe('The AuthenticationService', () => {
 
     authenticationService = await module.get(AuthenticationService);
   });
-  describe('when calling the getCookieForLogOut method', () => {
-    it('should return a correct string', () => {
-      const result = authenticationService.getCookieForLogOut();
-      expect(result).toBe('Authentication=; HttpOnly; Path=/; Max-Age=0');
-    });
-  });
   describe('when the getAuthenticatedUser method is called', () => {
-    describe('and a valid email and password are provided', () => {
-      let userData: User;
+    describe('and the user can be found in the database', () => {
+      let user: User;
       beforeEach(async () => {
-        password = 'strongPassword123';
         const hashedPassword = await bcrypt.hash(password, 10);
-        userData = {
+        user = {
           id: 1,
           email: 'john@smith.com',
           name: 'John',
           password: hashedPassword,
           addressId: null,
         };
-        getByEmailMock.mockResolvedValue(userData); // 👈
+        findUniqueMock.mockResolvedValue(user);
       });
-      it('should return the new user', async () => {
-        const result = await authenticationService.getAuthenticatedUser(
-          userData.email,
-          password,
-        );
-        expect(result).toBe(userData);
+      describe('and a correct password is provided', () => {
+        it('should return the new user', async () => {
+          const result = await authenticationService.getAuthenticatedUser(
+            user.email,
+            password,
+          );
+          expect(result).toBe(user);
+        });
+      });
+      describe('and an incorrect password is provided', () => {
+        it('should throw the BadRequestException', () => {
+          return expect(async () => {
+            await authenticationService.getAuthenticatedUser(
+              'john@smith.com',
+              'wrongPassword',
+            );
+          }).rejects.toThrow(BadRequestException);
+        });
       });
     });
-    describe('and an invalid email is provided', () => {
+    describe('and the user can not be found in the database', () => {
       beforeEach(() => {
-        getByEmailMock.mockRejectedValue(new UserNotFoundException()); // 👈
+        findUniqueMock.mockResolvedValue(undefined);
       });
-      it('should throw a HttpException with status code 400', async () => {
-        try {
+      it('should throw the BadRequestException', () => {
+        return expect(async () => {
           await authenticationService.getAuthenticatedUser(
             'john@smith.com',
             password,
           );
-        } catch (error) {
-          expect(error).toBeInstanceOf(HttpException);
-          expect(error.getStatus()).toBe(HttpStatus.BAD_REQUEST);
-        }
+        }).rejects.toThrow(BadRequestException);
       });
     });
   });
