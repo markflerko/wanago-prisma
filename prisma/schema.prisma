@@ -28,9 +28,10 @@ model Address {
 }
 
 model Category {
-  id    Int    @id @default(autoincrement())
-  name  String
-  posts Post[]
+  id        Int       @id @default(autoincrement())
+  name      String
+  posts     Post[]
+  deletedAt DateTime? @db.Timestamptz
 }
 
 model Post {
