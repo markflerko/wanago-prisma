@@ -6,17 +6,65 @@ import { UpdatePostDto } from 'src/post/dto/updatePost.dto';
 import { PostNotFoundException } from 'src/post/posts.exception';
 import { PrismaError } from 'src/utils/prismaError';
 import { PrismaService } from '../prisma/prisma.service';
+import { PaginationParamsDto } from 'src/post/dto/paginationParams.dto';
 
 @Injectable()
 export class PostsService {
   constructor(private readonly prismaService: PrismaService) {}
 
-  getPostsByAuthor(authorId: number) {
-    return this.prismaService.post.findMany({
-      where: {
-        authorId,
-      },
-    });
+  async getPosts({ limit, offset, startingId }: PaginationParamsDto) {
+    const [count, items] = await this.prismaService.$transaction([
+      this.prismaService.post.count(),
+      this.prismaService.post.findMany({
+        take: limit,
+        skip: offset,
+        cursor: {
+          id: startingId ?? 1,
+        },
+      }),
+    ]);
+
+    return {
+      count,
+      items,
+    };
+  }
+
+  // async getPosts(offset?: number, limit?: number) {
+  //   const [count, items] = await this.prismaService.$transaction([
+  //     this.prismaService.post.count(),
+  //     this.prismaService.post.findMany({
+  //       take: limit,
+  //       skip: offset,
+  //     }),
+  //   ]);
+
+  //   return {
+  //     count,
+  //     items,
+  //   };
+  // }
+
+  async getPostsByAuthor(authorId: number, offset?: number, limit?: number) {
+    const [count, items] = await this.prismaService.$transaction([
+      this.prismaService.post.count({
+        where: {
+          authorId,
+        },
+      }),
+      this.prismaService.post.findMany({
+        take: limit,
+        skip: offset,
+        where: {
+          authorId,
+        },
+      }),
+    ]);
+
+    return {
+      count,
+      items,
+    };
   }
 
   deleteMultiplePosts(ids: number[]) {
@@ -103,9 +151,5 @@ export class PostsService {
       throw new PostNotFoundException(id);
     }
     return post;
-  }
-
-  async getPosts() {
-    return this.prismaService.post.findMany();
   }
 }
