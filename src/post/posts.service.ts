@@ -126,6 +126,8 @@ export class PostsService {
       data: {
         title: post.title,
         content: post.content,
+        scheduledDate: post.scheduledDate,
+        createdAt: new Date(),
         author: {
           connect: {
             id: user.id,

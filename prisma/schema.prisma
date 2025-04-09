@@ -42,6 +42,12 @@ model Post {
   authorId   Int
   categories Category[]
 
+  createdAtDate DateTime  @default(now()) @db.Date
+  createdAtTime DateTime  @default(now()) @db.Time
+  createdAt     DateTime  @db.Timestamp
+  updatedAt     DateTime? @updatedAt @db.Timestamptz
+  scheduledDate DateTime  @db.Timestamptz
+
   @@index([authorId])
   @@index([authorId, title])
 }
