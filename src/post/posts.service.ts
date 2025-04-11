@@ -2,11 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { User } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 import { CreatePostDto } from 'src/post/dto/createPost.dto';
+import { PaginationParamsDto } from 'src/post/dto/paginationParams.dto';
 import { UpdatePostDto } from 'src/post/dto/updatePost.dto';
 import { PostNotFoundException } from 'src/post/posts.exception';
 import { PrismaError } from 'src/utils/prismaError';
 import { PrismaService } from '../prisma/prisma.service';
-import { PaginationParamsDto } from 'src/post/dto/paginationParams.dto';
 
 @Injectable()
 export class PostsService {
@@ -125,7 +125,7 @@ export class PostsService {
     return this.prismaService.post.create({
       data: {
         title: post.title,
-        content: post.content,
+        paragraphs: post.paragraphs,
         scheduledDate: post.scheduledDate,
         createdAt: new Date(),
         author: {
