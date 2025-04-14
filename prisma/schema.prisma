@@ -51,3 +51,10 @@ model Post {
   @@index([authorId])
   @@index([authorId, title])
 }
+
+
+model Product {
+  id         Int    @id @default(autoincrement())
+  name       String
+  properties Json?  @db.Json
+}
