@@ -23,7 +23,7 @@ export class ProductService {
   }
 
   getAllProducts() {
-    this.prismaService.product.findMany({
+    return this.prismaService.product.findMany({
       where: {
         properties: {
           path: ['publicationYear'],
