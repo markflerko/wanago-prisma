@@ -6,6 +6,7 @@ import { CategoriesModule } from 'src/categories/categories.module';
 import { PostsModule } from 'src/post/posts.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { ProductModule } from './product/product.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { AppService } from './app.service';
     CategoriesModule,
     PostsModule,
     AuthenticationModule,
+    ProductModule,
   ],
   controllers: [AppController],
   providers: [AppService],
