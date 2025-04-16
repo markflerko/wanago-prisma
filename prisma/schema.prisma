@@ -52,9 +52,9 @@ model Post {
   @@index([authorId, title])
 }
 
-
 model Product {
   id         Int    @id @default(autoincrement())
   name       String
   properties Json?  @db.JsonB
+  price      Int    @default(0)
 }

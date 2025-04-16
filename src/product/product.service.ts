@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 import { CreateProductDto } from 'src/product/dto/create-product.dto';
@@ -34,9 +38,19 @@ export class ProductService {
   }
 
   async createProduct(product: CreateProductDto) {
-    return this.prismaService.product.create({
-      data: product,
-    });
+    try {
+      return await this.prismaService.product.create({
+        data: product,
+      });
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientUnknownRequestError &&
+        error.message.includes('check constraint')
+      ) {
+        throw new BadRequestException(`Price greater than 0`);
+      }
+      throw error;
+    }
   }
 
   async updateProduct(id: number, product: UpdateProductDto) {
