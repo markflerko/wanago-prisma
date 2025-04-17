@@ -1,21 +1,27 @@
 import {
   Body,
-  Req,
+  ClassSerializerInterceptor,
   Controller,
+  Get,
   HttpCode,
   Post,
-  UseGuards,
+  Req,
   Res,
-  Get,
+  UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { Response } from 'express';
+import { UserResponseDto } from 'src/user/responses/user-response.dto';
+import { TransformDataInterceptor } from 'src/utils/transform-data.interceptor';
 import { AuthenticationService } from './authentication.service';
 import RegisterDto from './dto/register.dto';
-import RequestWithUser from './requestWithUser.interface';
-import { LocalAuthenticationGuard } from './localAuthentication.guard';
 import JwtAuthenticationGuard from './jwt-authentication.guard';
+import { LocalAuthenticationGuard } from './localAuthentication.guard';
+import RequestWithUser from './requestWithUser.interface';
+import { plainToInstance } from 'class-transformer';
 
 @Controller('authentication')
+@UseInterceptors(ClassSerializerInterceptor)
 export class AuthenticationController {
   constructor(private readonly authenticationService: AuthenticationService) {}
 
@@ -46,10 +52,9 @@ export class AuthenticationController {
   }
 
   @UseGuards(JwtAuthenticationGuard)
+  // @UseInterceptors(new TransformDataInterceptor(UserResponseDto))
   @Get()
   authenticate(@Req() request: RequestWithUser) {
-    const user = request.user;
-    user.password = undefined;
-    return user;
+    return plainToInstance(UserResponseDto, request.user);
   }
 }
