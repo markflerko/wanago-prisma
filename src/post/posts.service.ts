@@ -1,8 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { User } from '@prisma/client';
+import { Prisma, User } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 import { CreatePostDto } from 'src/post/dto/createPost.dto';
 import { PaginationParamsDto } from 'src/post/dto/paginationParams.dto';
+import { ReplacePostDto } from 'src/post/dto/replacePost.dto';
 import { UpdatePostDto } from 'src/post/dto/updatePost.dto';
 import { PostNotFoundException } from 'src/post/posts.exception';
 import { PrismaError } from 'src/utils/prismaError';
@@ -101,6 +102,28 @@ export class PostsService {
     }
   }
 
+  async replacePost(id: number, post: ReplacePostDto) {
+    try {
+      return await this.prismaService.post.update({
+        data: {
+          ...post,
+          id: undefined,
+        },
+        where: {
+          id,
+        },
+      });
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === PrismaError.RecordDoesNotExist
+      ) {
+        throw new PostNotFoundException(id);
+      }
+      throw error;
+    }
+  }
+
   async updatePost(id: number, post: UpdatePostDto) {
     try {
       return await this.prismaService.post.update({
@@ -114,7 +137,7 @@ export class PostsService {
       });
     } catch (error) {
       if (
-        error instanceof PrismaClientKnownRequestError &&
+        error instanceof Prisma.PrismaClientKnownRequestError &&
         error.code === PrismaError.RecordDoesNotExist
       ) {
         throw new PostNotFoundException(id);
