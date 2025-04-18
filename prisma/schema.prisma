@@ -46,7 +46,7 @@ model Post {
   createdAtTime DateTime  @default(now()) @db.Time
   createdAt     DateTime  @db.Timestamp
   updatedAt     DateTime? @updatedAt @db.Timestamptz
-  scheduledDate DateTime  @db.Timestamptz
+  scheduledDate DateTime?  @db.Timestamptz
 
   @@index([authorId])
   @@index([authorId, title])

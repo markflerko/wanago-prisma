@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Put,
   Query,
   Req,
   UseGuards,
@@ -15,6 +16,7 @@ import RequestWithUser from 'src/authentication/requestWithUser.interface';
 import { AuthorIdQueryDto } from 'src/post/dto/authorIdQuery.dto';
 import { CreatePostDto } from 'src/post/dto/createPost.dto';
 import { PaginationParamsDto } from 'src/post/dto/paginationParams.dto';
+import { ReplacePostDto } from 'src/post/dto/replacePost.dto';
 import { UpdatePostDto } from 'src/post/dto/updatePost.dto';
 import { FindOneParams } from 'src/utils/findOneParams';
 import { PostsService } from './posts.service';
@@ -44,6 +46,14 @@ export default class PostsController {
   @UseGuards(JwtAuthenticationGuard)
   async createPost(@Body() post: CreatePostDto, @Req() req: RequestWithUser) {
     return this.postsService.createPost(post, req.user);
+  }
+
+  @Put(':id')
+  async replacePost(
+    @Param() { id }: FindOneParams,
+    @Body() post: ReplacePostDto,
+  ) {
+    return this.postsService.replacePost(id, post);
   }
 
   @Patch(':id')
