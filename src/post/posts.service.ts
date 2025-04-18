@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { User } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 import { CreatePostDto } from 'src/post/dto/createPost.dto';
@@ -10,9 +10,13 @@ import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class PostsService {
+  private readonly logger = new Logger(PostsService.name);
+
   constructor(private readonly prismaService: PrismaService) {}
 
   async getPosts({ limit, offset, startingId }: PaginationParamsDto) {
+    this.logger.verbose('Get all posts');
+
     const [count, items] = await this.prismaService.$transaction([
       this.prismaService.post.count(),
       this.prismaService.post.findMany({
@@ -46,6 +50,8 @@ export class PostsService {
   // }
 
   async getPostsByAuthor(authorId: number, offset?: number, limit?: number) {
+    this.logger.verbose('Get all posts');
+
     const [count, items] = await this.prismaService.$transaction([
       this.prismaService.post.count({
         where: {

@@ -1,10 +1,18 @@
+import { LogLevel, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common';
 import * as cookieParser from 'cookie-parser';
+import { LoggerInterceptor } from 'src/utils/logging.interceptor';
+import { AppModule } from './app.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const isProduction = process.env.NODE_ENV === 'production';
+  const logLevels: LogLevel[] = isProduction
+    ? ['error', 'warn', 'log']
+    : ['error', 'warn', 'log', 'debug', 'verbose'];
+
+  const app = await NestFactory.create(AppModule, {
+    logger: logLevels,
+  });
 
   app.use(cookieParser());
 
@@ -13,6 +21,8 @@ async function bootstrap() {
       transform: true,
     }),
   );
+
+  app.useGlobalInterceptors(new LoggerInterceptor());
 
   await app.listen(4000);
 }
