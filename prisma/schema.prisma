@@ -1,10 +1,10 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-}
-
-generator client {
-  provider = "prisma-client-js"
 }
 
 model User {
@@ -12,11 +12,11 @@ model User {
   email     String   @unique
   name      String
   password  String
-  address   Address? @relation(fields: [addressId], references: [id])
   addressId Int?     @unique
   posts     Post[]
+  address   Address? @relation(fields: [addressId], references: [id])
 
-  @@index(fields: [name], type: Hash)
+  @@index([name], type: Hash)
 }
 
 model Address {
@@ -30,23 +30,23 @@ model Address {
 model Category {
   id        Int       @id @default(autoincrement())
   name      String
-  posts     Post[]
-  deletedAt DateTime? @db.Timestamptz
+  deletedAt DateTime? @db.Timestamptz(6)
+  posts     Post[]    @relation("CategoryToPost")
 }
 
 model Post {
-  id         Int        @id @default(autoincrement())
-  title      String
-  paragraphs String[]
-  author     User       @relation(fields: [authorId], references: [id])
-  authorId   Int
-  categories Category[]
-
-  createdAtDate DateTime  @default(now()) @db.Date
-  createdAtTime DateTime  @default(now()) @db.Time
-  createdAt     DateTime  @db.Timestamp
-  updatedAt     DateTime? @updatedAt @db.Timestamptz
-  scheduledDate DateTime?  @db.Timestamptz
+  id            Int        @id @default(autoincrement())
+  title         String
+  authorId      Int
+  createdAt     DateTime   @db.Timestamp(6)
+  createdAtDate DateTime   @default(now()) @db.Date
+  createdAtTime DateTime   @default(now()) @db.Time(6)
+  scheduledDate DateTime?  @db.Timestamptz(6)
+  updatedAt     DateTime?  @updatedAt @db.Timestamptz(6)
+  paragraphs    String[]
+  description   String?
+  author        User       @relation(fields: [authorId], references: [id])
+  categories    Category[] @relation("CategoryToPost")
 
   @@index([authorId])
   @@index([authorId, title])
@@ -55,6 +55,6 @@ model Post {
 model Product {
   id         Int    @id @default(autoincrement())
   name       String
-  properties Json?  @db.JsonB
+  properties Json?
   price      Int    @default(0)
 }
