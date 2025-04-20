@@ -53,8 +53,39 @@ model Post {
 }
 
 model Product {
-  id         Int    @id @default(autoincrement())
-  name       String
-  properties Json?
-  price      Int    @default(0)
+  id              Int               @id @default(autoincrement())
+  name            String
+  properties      Json?
+  price           Int               @default(0)
+  productPurchase ProductPurchase[]
+}
+
+model Client {
+  id              Int               @id @default(autoincrement())
+  name            String
+  productPurchase ProductPurchase[]
+}
+
+model CarBrand {
+  id       Int        @id @default(autoincrement())
+  name     String
+  CarModel CarModel[]
+}
+
+model CarModel {
+  id              Int               @id @default(autoincrement())
+  name            String
+  brand           CarBrand          @relation(fields: [brandId], references: [id])
+  brandId         Int
+  productPurchase ProductPurchase[]
+}
+
+model ProductPurchase {
+  id              Int      @id @default(autoincrement())
+  client          Client   @relation(fields: [clientId], references: [id])
+  clientId        Int
+  product         Product  @relation(fields: [productId], references: [id])
+  productId       Int
+  courierCarModel CarModel @relation(fields: [courierCarId], references: [id])
+  courierCarId    Int
 }
