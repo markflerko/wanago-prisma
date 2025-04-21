@@ -7,6 +7,7 @@ import { PostsModule } from 'src/post/posts.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ProductModule } from './product/product.module';
+import { ReportsModule } from './reports/reports.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { ProductModule } from './product/product.module';
     PostsModule,
     AuthenticationModule,
     ProductModule,
+    ReportsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
