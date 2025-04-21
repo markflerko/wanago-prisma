@@ -8,15 +8,25 @@ datasource db {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
+  id        Int       @id @default(autoincrement())
+  email     String    @unique
   name      String
   password  String
-  addressId Int?     @unique
+  addressId Int?      @unique
   posts     Post[]
-  address   Address? @relation(fields: [addressId], references: [id])
+  articles  Article[]
+  address   Address?  @relation(fields: [addressId], references: [id])
 
   @@index([name], type: Hash)
+}
+
+model Article {
+  id       Int     @id @default(autoincrement())
+  title    String
+  content  String?
+  upvotes  Int     @default(0)
+  author   User    @relation(fields: [authorId], references: [id])
+  authorId Int
 }
 
 model Address {
