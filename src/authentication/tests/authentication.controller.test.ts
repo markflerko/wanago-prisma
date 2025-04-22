@@ -79,7 +79,7 @@ describe('The AuthenticationController', () => {
             throw new Prisma.PrismaClientKnownRequestError(
               'The user already exists',
               {
-                code: PrismaError.UniqueConstraintFailed,
+                code: PrismaError.UniqueConstraintViolated,
                 clientVersion: '4.12.0',
               },
             );
