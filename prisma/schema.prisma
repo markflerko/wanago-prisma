@@ -100,15 +100,20 @@ model ProductPurchase {
   courierCarId    Int
 }
 
-
 model Book {
   id         Int     @id @default(autoincrement())
   title      String
   authorName String? @default("anonymous")
   author     Writer? @relation(fields: [authorName], references: [name], onDelete: SetDefault, onUpdate: SetDefault)
 }
- 
+
 model Writer {
-  name String @id
+  name  String @id
   books Book[]
+}
+
+model Event {
+  id        Int                      @id @default(autoincrement())
+  name      String
+  dateRange Unsupported("tstzrange")
 }
