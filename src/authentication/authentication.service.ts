@@ -32,7 +32,7 @@ export class AuthenticationService {
       return createdUser;
     } catch (error) {
       console.log(error?.code);
-      if (error?.code === PrismaError.UniqueConstraintFailed) {
+      if (error?.code === PrismaError.UniqueConstraintViolated) {
         throw new HttpException(
           'User with that email already exists',
           HttpStatus.BAD_REQUEST,
