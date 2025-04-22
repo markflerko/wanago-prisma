@@ -60,6 +60,9 @@ export class PostsService {
         },
       }),
       this.prismaService.post.findMany({
+        include: {
+          categories: true,
+        },
         take: limit,
         skip: offset,
         where: {
