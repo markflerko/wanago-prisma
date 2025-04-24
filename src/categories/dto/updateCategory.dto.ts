@@ -1,4 +1,11 @@
-import { IsString, IsNotEmpty, IsNumber, IsOptional } from 'class-validator';
+import {
+  IsInt,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from 'class-validator';
+import { CanBeUndefined } from 'src/utils/canBeUndefined';
 
 export class UpdateCategoryDto {
   @IsNumber()
@@ -9,6 +16,10 @@ export class UpdateCategoryDto {
   @IsNotEmpty()
   @IsOptional()
   name: string;
+
+  @IsInt({ each: true })
+  @CanBeUndefined()
+  nestedCategoryIds?: number[];
 }
 
 export default UpdateCategoryDto;

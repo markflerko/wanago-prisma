@@ -28,13 +28,13 @@ export default class CategoriesController {
 
   @Get(':id')
   getCategoryById(@Param() { id }: FindOneParams) {
-    return this.categoriesService.getCategoryById(id);
+    return this.categoriesService.getById(id);
   }
 
   @Post()
   @UseGuards(JwtAuthenticationGuard)
   async createCategory(@Body() category: CreateCategoryDto) {
-    return this.categoriesService.createCategory(category);
+    return this.categoriesService.create(category);
   }
 
   @Patch(':id')
@@ -42,7 +42,7 @@ export default class CategoriesController {
     @Param() { id }: FindOneParams,
     @Body() category: UpdateCategoryDto,
   ) {
-    return this.categoriesService.updateCategory(id, category);
+    return this.categoriesService.update(id, category);
   }
 
   @Delete(':id')
