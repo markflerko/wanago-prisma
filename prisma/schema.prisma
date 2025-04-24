@@ -21,12 +21,13 @@ model User {
 }
 
 model Article {
-  id       Int     @id @default(autoincrement())
-  title    String
-  content  String?
-  upvotes  Int     @default(0)
-  author   User    @relation(fields: [authorId], references: [id])
-  authorId Int
+  id         Int        @id @default(autoincrement())
+  title      String
+  content    String?
+  upvotes    Int        @default(0)
+  author     User       @relation(fields: [authorId], references: [id])
+  authorId   Int
+  categories Category[]
 }
 
 model Address {
@@ -42,6 +43,7 @@ model Category {
   name             String
   deletedAt        DateTime?  @db.Timestamptz(6)
   posts            Post[]     @relation("CategoryToPost")
+  articles         Article[]
   parentCategory   Category?  @relation("CategoriesHierarchy", fields: [parentCategoryId], references: [id])
   nestedCategories Category[] @relation("CategoriesHierarchy")
   parentCategoryId Int?
