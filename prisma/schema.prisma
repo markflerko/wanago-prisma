@@ -38,10 +38,13 @@ model Address {
 }
 
 model Category {
-  id        Int       @id @default(autoincrement())
-  name      String
-  deletedAt DateTime? @db.Timestamptz(6)
-  posts     Post[]    @relation("CategoryToPost")
+  id               Int        @id @default(autoincrement())
+  name             String
+  deletedAt        DateTime?  @db.Timestamptz(6)
+  posts            Post[]     @relation("CategoryToPost")
+  parentCategory   Category?  @relation("CategoriesHierarchy", fields: [parentCategoryId], references: [id])
+  nestedCategories Category[] @relation("CategoriesHierarchy")
+  parentCategoryId Int?
 }
 
 model Post {

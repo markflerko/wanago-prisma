@@ -1,4 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 import { PostsService } from 'src/post/posts.service';
 import { PrismaService } from '../prisma/prisma.service';
@@ -15,7 +20,7 @@ export default class CategoriesService {
   ) {}
 
   async deleteCategoryWithPosts(id: number) {
-    const category = await this.getCategoryById(id);
+    const category = await this.getById(id);
 
     const postIds = category.posts.map((post) => post.id);
 
@@ -37,49 +42,100 @@ export default class CategoriesService {
     return this.prismaService.category.findMany();
   }
 
-  async getCategoryById(id: number) {
+  private includeNestedCategories(
+    maximumLevel: number,
+  ): boolean | Prisma.Category$nestedCategoriesArgs {
+    if (maximumLevel === 1) {
+      return true;
+    }
+    return {
+      include: {
+        nestedCategories: this.includeNestedCategories(maximumLevel - 1),
+      },
+    };
+  }
+
+  async getById(id: number) {
     const category = await this.prismaService.category.findUnique({
       where: {
         id,
       },
       include: {
         posts: true,
+        nestedCategories: this.includeNestedCategories(10),
       },
     });
     if (!category) {
-      throw new CategoryNotFoundException(id);
+      throw new NotFoundException();
     }
     return category;
   }
 
-  async createCategory(category: CreateCategoryDto) {
-    return this.prismaService.category.create({
-      data: category,
-    });
+  async create(category: CreateCategoryDto) {
+    const nestedCategories =
+      category.nestedCategoryIds?.map((id) => ({
+        id,
+      })) || [];
+    try {
+      return await this.prismaService.category.create({
+        data: {
+          name: category.name,
+          nestedCategories: {
+            connect: nestedCategories,
+          },
+        },
+        include: {
+          nestedCategories: true,
+        },
+      });
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === PrismaError.ConnectedRecordsNotFound
+      ) {
+        throw new ConflictException(
+          'Some of the provided category ids are not valid',
+        );
+      }
+      throw error;
+    }
   }
 
-  async updateCategory(id: number, category: UpdateCategoryDto) {
+  async update(id: number, category: UpdateCategoryDto) {
     try {
+      const nestedCategories =
+        category.nestedCategoryIds?.map((id) => ({
+          id,
+        })) || [];
       return await this.prismaService.category.update({
         data: {
-          ...category,
-          id: undefined,
+          name: category.name,
+          nestedCategories: {
+            connect: nestedCategories,
+          },
+        },
+        include: {
+          nestedCategories: true,
         },
         where: {
           id,
         },
       });
     } catch (error) {
-      if (
-        error instanceof PrismaClientKnownRequestError &&
-        error.code === PrismaError.RecordDoesNotExist
-      ) {
-        throw new CategoryNotFoundException(id);
+      if (!(error instanceof Prisma.PrismaClientKnownRequestError)) {
+        throw error;
+      }
+      if (error.code === PrismaError.RecordDoesNotExist) {
+        throw new NotFoundException();
+      }
+      if (error.code === PrismaError.ConnectedRecordsNotFound) {
+        throw new ConflictException(
+          'Some of the provided category ids are not valid',
+        );
       }
       throw error;
     }
   }
-
   async deleteCategory(id: number) {
     try {
       return this.prismaService.category.delete({
