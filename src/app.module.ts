@@ -9,6 +9,7 @@ import { AppService } from './app.service';
 import { ProductModule } from './product/product.module';
 import { ReportsModule } from './reports/reports.module';
 import { EventsModule } from './events/events.module';
+import { ArticlesModule } from './articles/articles.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { EventsModule } from './events/events.module';
     ProductModule,
     ReportsModule,
     EventsModule,
+    ArticlesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
