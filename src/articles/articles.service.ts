@@ -1,11 +1,36 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { Prisma, User } from '@prisma/client';
 import { ArticlesSearchParamsDto } from 'src/articles/dto/articles-search-params.dto';
+import { CreatePostDto } from 'src/post/dto/createPost.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class ArticlesService {
   constructor(private readonly prismaService: PrismaService) {}
+
+  async create(post: CreatePostDto, user: User) {
+    const categories = post.categoryIds?.map((category) => ({
+      id: category,
+    }));
+
+    return this.prismaService.article.create({
+      data: {
+        title: post.title,
+        content: post.paragraphs.join(', '),
+        author: {
+          connect: {
+            id: user.id,
+          },
+        },
+        categories: {
+          connect: categories,
+        },
+      },
+      include: {
+        categories: true,
+      },
+    });
+  }
 
   search({
     textSearch,
