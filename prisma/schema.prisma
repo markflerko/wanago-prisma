@@ -1,10 +1,12 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [pgcrypto]
 }
 
 model User {
@@ -21,7 +23,7 @@ model User {
 }
 
 model Article {
-  id         Int        @id @default(autoincrement())
+  id         String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   title      String
   content    String?
   upvotes    Int        @default(0)
