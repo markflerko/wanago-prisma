@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { PostsService } from 'src/post/posts.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { PrismaError } from '../utils/prismaError';

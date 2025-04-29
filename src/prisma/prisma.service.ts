@@ -50,8 +50,8 @@ export class PrismaService
     this.$on('info', ({ message }) => {
       this.logger.debug(message);
     });
-    this.$on('query', ({ query, params }) => {
-      this.logger.log(`${query}; ${params}`);
+    this.$on('query', (event) => {
+      console.log(`Query: ${event.query}`);
     });
   }
 

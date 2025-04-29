@@ -1,6 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Prisma, User } from '@prisma/client';
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 import { CreatePostDto } from 'src/post/dto/createPost.dto';
 import { PaginationParamsDto } from 'src/post/dto/paginationParams.dto';
 import { ReplacePostDto } from 'src/post/dto/replacePost.dto';
@@ -8,6 +7,7 @@ import { UpdatePostDto } from 'src/post/dto/updatePost.dto';
 import { PostNotFoundException } from 'src/post/posts.exception';
 import { PrismaError } from 'src/utils/prismaError';
 import { PrismaService } from '../prisma/prisma.service';
+import { PrismaClientUnknownRequestError } from '@prisma/client/runtime/library';
 
 @Injectable()
 export class PostsService {
@@ -96,8 +96,8 @@ export class PostsService {
       });
     } catch (error) {
       if (
-        error instanceof PrismaClientKnownRequestError &&
-        error.code === PrismaError.RecordDoesNotExist
+        error instanceof PrismaClientUnknownRequestError &&
+        error.name === PrismaError.RecordDoesNotExist
       ) {
         throw new PostNotFoundException(id);
       }

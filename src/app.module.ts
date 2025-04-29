@@ -10,6 +10,7 @@ import { ProductModule } from './product/product.module';
 import { ReportsModule } from './reports/reports.module';
 import { EventsModule } from './events/events.module';
 import { ArticlesModule } from './articles/articles.module';
+import { AddressModule } from './address/address.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { ArticlesModule } from './articles/articles.module';
     ReportsModule,
     EventsModule,
     ArticlesModule,
+    AddressModule,
   ],
   controllers: [AppController],
   providers: [AppService],

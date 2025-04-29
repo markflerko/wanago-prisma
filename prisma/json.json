@@ -1,0 +1,4 @@
+ion successfully started +43ms
+Query: SELECT "public"."Address"."id", "public"."Address"."street", "public"."Address"."city", "public"."Address"."country" FROM "public"."Address" LEFT JOIN "public"."User" AS "orderby_1" ON ("orderby_1"."addressId") = ("public"."Address"."id") WHERE 1=1 ORDER BY "orderby_1"."id" ASC OFFSET $1
+Query: SELECT "public"."User"."id", "public"."User"."email", "public"."User"."name", "public"."User"."password", "public"."User"."addressId" FROM "public"."User" WHERE "public"."User"."addressId" IN ($1,$2,$3,$4) OFFSET $5
+[Nest] 82988  - 04/29/2025, 7:55:55
