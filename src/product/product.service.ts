@@ -4,11 +4,11 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 import { CreateProductDto } from 'src/product/dto/create-product.dto';
 import { UpdateProductDto } from 'src/product/dto/update-product.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { PrismaError } from '../utils/prismaError';
+import { PrismaClientUnknownRequestError } from '@prisma/client/runtime/library';
 
 @Injectable()
 export class ProductService {
@@ -67,8 +67,8 @@ export class ProductService {
       });
     } catch (error) {
       if (
-        error instanceof PrismaClientKnownRequestError &&
-        error.code === PrismaError.RecordDoesNotExist
+        error instanceof PrismaClientUnknownRequestError &&
+        error.name === PrismaError.RecordDoesNotExist
       ) {
         throw new NotFoundException();
       }
@@ -85,8 +85,8 @@ export class ProductService {
       });
     } catch (error) {
       if (
-        error instanceof PrismaClientKnownRequestError &&
-        error.code === PrismaError.RecordDoesNotExist
+        error instanceof PrismaClientUnknownRequestError &&
+        error.message === PrismaError.RecordDoesNotExist
       ) {
         throw new NotFoundException();
       }
