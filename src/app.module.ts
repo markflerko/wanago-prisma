@@ -12,6 +12,7 @@ import { EventsModule } from './events/events.module';
 import { ArticlesModule } from './articles/articles.module';
 import { AddressModule } from './address/address.module';
 import { CommentModule } from './comment/comment.module';
+import { BankAccountModule } from './bank-account/bank-account.module';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { CommentModule } from './comment/comment.module';
     ArticlesModule,
     AddressModule,
     CommentModule,
+    BankAccountModule,
   ],
   controllers: [AppController],
   providers: [AppService],
