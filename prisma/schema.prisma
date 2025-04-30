@@ -8,44 +8,40 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model BankAccount {
+  id      Int     @id @default(autoincrement())
+  balance Decimal @db.Decimal(19, 4)
+  owner   User    @relation(fields: [ownerId], references: [id])
+  ownerId Int
+}
+
 model User {
-  id        Int       @id @default(autoincrement())
-  email     String    @unique
-  name      String
-  password  String
-  addressId Int?      @unique
-  posts     Post[]
-  articles  Article[]
-  address   Address?  @relation(fields: [addressId], references: [id])
+  id           Int           @id @default(autoincrement())
+  email        String        @unique
+  name         String
+  password     String
+  addressId    Int?          @unique
+  posts        Post[]
+  articles     Article[]
+  address      Address?      @relation(fields: [addressId], references: [id])
+  bankAccounts BankAccount[]
 
   @@index([name], type: Hash)
 }
-
-model UserNew {
-  id        Int         @id @default(autoincrement())
-  email     String      @unique
-  name      String
-  password  String
-  addressId Int?        @unique
-  address   AddressNew? @relation(fields: [addressId], references: [id])
-
-  @@index([name], type: Hash)
-}
-
 
 model Photo {
   id       Int       @id @default(autoincrement())
   imageUrl String
   comments Comment[]
 }
- 
+
 model Comment {
-  id Int @id @default(autoincrement())
+  id      Int    @id @default(autoincrement())
   content String
- 
+
   photo   Photo? @relation(fields: [photoId], references: [id])
   photoId Int?
- 
+
   article   Article? @relation(fields: [articleId], references: [id])
   articleId String?  @db.Uuid
 }
@@ -59,14 +55,6 @@ model Article {
   authorId   Int
   categories Category[]
   comments   Comment[]
-}
-
-model AddressNew {
-  id      Int      @id @default(autoincrement())
-  street  String
-  city    String
-  country String
-  user    UserNew?
 }
 
 model Address {
