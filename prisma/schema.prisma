@@ -1,22 +1,11 @@
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["postgresqlExtensions", "multiSchema", "nativeDistinct"]
+  previewFeatures = ["nativeDistinct"]
 }
 
 datasource db {
-  provider   = "postgresql"
-  url        = env("DATABASE_URL")
-  extensions = [pgcrypto]
-  schemas    = ["public", "user_data", "archive"]
-}
-
-model ArchivedArticle {
-  id      Int    @id @default(autoincrement())
-  title   String
-  content String
-
-  @@schema("archive")
-  @@map("Article")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model User {
@@ -30,7 +19,6 @@ model User {
   address   Address?  @relation(fields: [addressId], references: [id])
 
   @@index([name], type: Hash)
-  @@schema("public")
 }
 
 model UserNew {
@@ -42,7 +30,24 @@ model UserNew {
   address   AddressNew? @relation(fields: [addressId], references: [id])
 
   @@index([name], type: Hash)
-  @@schema("user_data")
+}
+
+
+model Photo {
+  id       Int       @id @default(autoincrement())
+  imageUrl String
+  comments Comment[]
+}
+ 
+model Comment {
+  id Int @id @default(autoincrement())
+  content String
+ 
+  photo   Photo? @relation(fields: [photoId], references: [id])
+  photoId Int?
+ 
+  article   Article? @relation(fields: [articleId], references: [id])
+  articleId String?  @db.Uuid
 }
 
 model Article {
@@ -53,8 +58,7 @@ model Article {
   author     User       @relation(fields: [authorId], references: [id])
   authorId   Int
   categories Category[]
-
-  @@schema("public")
+  comments   Comment[]
 }
 
 model AddressNew {
@@ -63,8 +67,6 @@ model AddressNew {
   city    String
   country String
   user    UserNew?
-
-  @@schema("user_data")
 }
 
 model Address {
@@ -73,8 +75,6 @@ model Address {
   city    String
   country String
   user    User?
-
-  @@schema("public")
 }
 
 model Category {
@@ -86,8 +86,6 @@ model Category {
   parentCategory   Category?  @relation("CategoriesHierarchy", fields: [parentCategoryId], references: [id])
   nestedCategories Category[] @relation("CategoriesHierarchy")
   parentCategoryId Int?
-
-  @@schema("public")
 }
 
 model Post {
@@ -106,7 +104,6 @@ model Post {
 
   @@index([authorId])
   @@index([authorId, title])
-  @@schema("public")
 }
 
 model Product {
@@ -115,24 +112,18 @@ model Product {
   properties      Json?
   price           Int               @default(0)
   productPurchase ProductPurchase[]
-
-  @@schema("public")
 }
 
 model Client {
   id              Int               @id @default(autoincrement())
   name            String
   productPurchase ProductPurchase[]
-
-  @@schema("public")
 }
 
 model CarBrand {
   id       Int        @id @default(autoincrement())
   name     String
   CarModel CarModel[]
-
-  @@schema("public")
 }
 
 model CarModel {
@@ -141,8 +132,6 @@ model CarModel {
   brand           CarBrand          @relation(fields: [brandId], references: [id])
   brandId         Int
   productPurchase ProductPurchase[]
-
-  @@schema("public")
 }
 
 model ProductPurchase {
@@ -153,8 +142,6 @@ model ProductPurchase {
   productId       Int
   courierCarModel CarModel @relation(fields: [courierCarId], references: [id])
   courierCarId    Int
-
-  @@schema("public")
 }
 
 model Book {
@@ -162,21 +149,15 @@ model Book {
   title      String
   authorName String? @default("anonymous")
   author     Writer? @relation(fields: [authorName], references: [name], onDelete: SetDefault, onUpdate: SetDefault)
-
-  @@schema("public")
 }
 
 model Writer {
   name  String @id
   books Book[]
-
-  @@schema("public")
 }
 
 model Event {
   id        Int                      @id @default(autoincrement())
   name      String
   dateRange Unsupported("tstzrange")
-
-  @@schema("public")
 }

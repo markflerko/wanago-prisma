@@ -1,4 +1,4 @@
-import * as Joi from '@hapi/joi';
+import * as Joi from 'joi';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AuthenticationModule } from 'src/authentication/authentication.module';
@@ -11,6 +11,7 @@ import { ReportsModule } from './reports/reports.module';
 import { EventsModule } from './events/events.module';
 import { ArticlesModule } from './articles/articles.module';
 import { AddressModule } from './address/address.module';
+import { CommentModule } from './comment/comment.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { AddressModule } from './address/address.module';
     EventsModule,
     ArticlesModule,
     AddressModule,
+    CommentModule,
   ],
   controllers: [AppController],
   providers: [AppService],
